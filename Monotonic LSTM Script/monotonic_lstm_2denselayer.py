@@ -1,7 +1,3 @@
-#import keras
-#main_input=keras.layers.Input(shape=(50, 17), name='main_input')
-#mlstm=mLSTM(input_units=8, output_units=2, return_sequences=True, use_bias=1, recurrent_dropout=0.1)(main_input)
-
 import numpy as np
 import warnings
 
@@ -19,21 +15,26 @@ from keras.utils.generic_utils import to_list
 from keras.legacy.layers import Recurrent
 from keras.legacy import interfaces
 from keras.layers import RNN
+
+
 class mLSTMCell(Layer):
     """Cell class for the Monotonic LSTM layer.
     # Arguments
-        units: Positive integer, dimensionality of the output space.
+        input_units: Positive integer, output dimensionality of the input/forget/output gate and cell states.
+        hidden_units : Positive integer, dimensionality of the dense layers hidden state output space
+        output_units : Positive integer, dimensionality of the final output of the monotonicity preserving LSTM 
+                       (set to 1 here as the output is density which is a scalar)
         activation: Activation function to use
-            (see [activations](../activations.md)).
             Default: hyperbolic tangent (`tanh`).
             If you pass `None`, no activation is applied
             (ie. "linear" activation: `a(x) = x`).
         recurrent_activation: Activation function to use
             for the recurrent step
-            (see [activations](../activations.md)).
             Default: hard sigmoid (`hard_sigmoid`).
             If you pass `None`, no activation is applied
             (ie. "linear" activation: `a(x) = x`).x
+        rectifier_activation : Activation of the final delta layer which creates postive output. 
+                               Set to ReLU by default so that the monotonicity is preserved.
         use_bias: Boolean, whether the layer uses a bias vector.
         kernel_initializer: Initializer for the `kernel` weights matrix,
             used for the linear transformation of the inputs
@@ -71,6 +72,9 @@ class mLSTMCell(Layer):
         recurrent_dropout: Float between 0 and 1.
             Fraction of the units to drop for
             the linear transformation of the recurrent state.
+        hidden_dropout : Float between 0 and 1.
+             Fraction of the units to drop for
+            the linear transformation of the hidden state in the dense layers.
         implementation: Implementation mode, either 1 or 2.
             Mode 1 will structure its operations as a larger number of
             smaller dot products and additions, whereas mode 2 will
@@ -281,8 +285,7 @@ class mLSTMCell(Layer):
                 self.dropout,
                 training=training,
                 count=2)
-#        print('kernel i shape');
-#        print(self.kernel_i.shape)
+
         # dropout matrices for input units
         dp_mask = self._dropout_mask
         # dropout matrices for hidden units
@@ -314,8 +317,7 @@ class mLSTMCell(Layer):
             x_f = K.dot(inputs_f, self.kernel_f)
             x_c = K.dot(inputs_c, self.kernel_c)
             x_o = K.dot(inputs_o, self.kernel_o)
-            #print('x_i shape');
-            #print(x_i.shape)
+
             if self.use_bias:
                 x_i = K.bias_add(x_i, self.bias_i)
                 x_f = K.bias_add(x_f, self.bias_f)
@@ -368,7 +370,6 @@ class mLSTMCell(Layer):
             c = f * c_tm1 + i * self.activation(z2)
             o = self.recurrent_activation(z3)
 
-        #h = o * self.activation(c) + h_tm1
         m = o * self.activation(c)
         
         #hidden layer 1
@@ -430,20 +431,23 @@ class mLSTMCell(Layer):
 
 
 class mLSTM(RNN):
-    """Long Short-Term Memory layer - Hochreiter 1997.
+    """Monotonicity preserving LSTM layer
     # Arguments
-        units: Positive integer, dimensionality of the output space.
+        input_units: Positive integer, output dimensionality of the input/forget/output gate and cell states.
+        hidden_units : Positive integer, dimensionality of the dense layers hidden state output space
+        output_units : Positive integer, dimensionality of the final output of the monotonicity preserving LSTM 
+                       (set to 1 here as the output is density which is a scalar)
         activation: Activation function to use
-            (see [activations](../activations.md)).
             Default: hyperbolic tangent (`tanh`).
             If you pass `None`, no activation is applied
             (ie. "linear" activation: `a(x) = x`).
         recurrent_activation: Activation function to use
             for the recurrent step
-            (see [activations](../activations.md)).
             Default: hard sigmoid (`hard_sigmoid`).
             If you pass `None`, no activation is applied
-            (ie. "linear" activation: `a(x) = x`).
+            (ie. "linear" activation: `a(x) = x`).x
+        rectifier_activation : Activation of the final delta layer which creates postive output. 
+                               Set to ReLU by default so that the monotonicity is preserved.
         use_bias: Boolean, whether the layer uses a bias vector.
         kernel_initializer: Initializer for the `kernel` weights matrix,
             used for the linear transformation of the inputs.
@@ -484,6 +488,9 @@ class mLSTM(RNN):
         recurrent_dropout: Float between 0 and 1.
             Fraction of the units to drop for
             the linear transformation of the recurrent state.
+        hidden_dropout: Float between 0 and 1.
+            Fraction of the units to drop for
+            the linear transformation of the hidden state of the dense layers.
         implementation: Implementation mode, either 1 or 2.
             Mode 1 will structure its operations as a larger number of
             smaller dot products and additionelf.units = unis, whereas mode 2 will
@@ -507,15 +514,6 @@ class mLSTM(RNN):
             Unrolling can speed-up a RNN,
             although it tends to be more memory-intensive.
             Unrolling is only suitable for short sequences.
-    # References
-        - [Long short-term memory](
-          http://www.bioinf.jku.at/publications/older/2604.pdf)
-        - [Learning to forget: Continual prediction with LSTM](
-          http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)
-        - [Supervised sequence labeling with recurrent neural networks](
-          http://www.cs.toronto.edu/~graves/preprint.pdf)
-        - [A Theoretically Grounded Application of Dropout in
-           Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)
     """
 
     @interfaces.legacy_recurrent_support
