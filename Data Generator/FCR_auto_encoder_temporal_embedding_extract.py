@@ -10,7 +10,7 @@ from matplotlib import pyplot
 
 """
 Script Description:
-This script traing the LSTM based autoencoder to extract temporal features from the data.
+This script traing the LSTM based autoencoder to extract temporal features from the FCR data (Falling Creek Reservoir).
 
 """
 
