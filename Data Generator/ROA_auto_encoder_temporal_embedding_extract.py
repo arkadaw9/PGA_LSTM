@@ -8,6 +8,14 @@ from keras.losses import mean_squared_error
 import scipy.io as spio
 from matplotlib import pyplot
 
+"""
+Script Description:
+This script traing the LSTM based autoencoder to extract temporal features from the data.
+
+"""
+
+
+
 #create dataframe from csv file
 df=pd.read_csv('../Datasets/FCR_2013_2018_Drivers.csv',sep=',');
 
