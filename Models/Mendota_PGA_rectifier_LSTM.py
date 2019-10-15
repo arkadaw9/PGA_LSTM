@@ -31,22 +31,18 @@ import tensorflow as tf
 from keras.engine import InputSpec
 from scipy import stats
 import os
-#from google.colab import drive
-
-#drive.mount('/content/gdrive')
-#os.chdir("gdrive/My Drive/Colab Notebooks/Lake Temperature Modelling/")
 
 
 # %% Importing Rectifier LSTM
 import sys
-sys.path.append("/home/karpatne/Documents/Lake Temperature Modelling/Monotonic LSTM Script")
-#sys.path.append("C:\\Users\\arkad\\Documents\\Lake Temperature Modelling\\Monotonic LSTM Script")
-#import final_mLSTM
-#from rectifier_LSTM import mLSTM
-#from backup_rectifier_LSTM import mLSTM
-from h_c_m_state_2denselayer_rectified_lstm import mLSTM
+sys.path.append("../Monotonic LSTM Script")
+from monotonic_lstm_2denselayer import mLSTM
 
 # %% Dropout Class
+""" This class is used to generate K samples during the testing time using MC Dropout.
+    Implements the MC dropout in the paper : "Dropout as a Bayesian Approximation : Representing Model Uncertainty in 
+    Deep Learning"
+"""
 class KerasDropoutPrediction(object):
     def __init__(self ,model):
         self.f = K.function(
@@ -67,7 +63,7 @@ class KerasDropoutPrediction(object):
 def root_mean_squared_error(y_true, y_pred):
     return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
 
-
+#loss functions with masking 
 def masked_mean_squared_error(y_true ,y_pred):
     return K.mean(y_true[:, :, 1] * K.square(y_pred[:, :, 0] - y_true[:, :, 0]), axis=-1)
 
@@ -75,25 +71,8 @@ def masked_mean_squared_error(y_true ,y_pred):
 def masked_root_mean_squared_error(y_true, y_pred):
     return K.sqrt(K.mean(y_true[:, :, 1] * K.square(y_pred[:, :, 0] - y_true[:, :, 0]), axis=-1))
   
-def combined_loss(params):
-    udendiff, lam = params
 
-    def loss(y_true, y_pred):
-        return masked_mean_squared_error(y_true, y_pred) + lam * K.mean(K.relu(udendiff))
-
-    return loss
-
-
-def phy_loss_mean(params):
-    # useful for cross-checking training
-    udendiff, lam = params
-
-    def loss(y_true, y_pred):
-        return K.mean(K.relu(udendiff))
-
-    return loss
-
- # %% Density Conversion Functions
+# %% Density Conversion Functions
 def density(temp):
     return (1 + (1 - (temp + 288.9414) * (temp - 3.9863) ** 2 / (508929.2 * (temp + 68.12963))))
     # [math.log(0.1+y) for y in x]
@@ -108,8 +87,7 @@ def actual_density(temp):
 
 def read_Data():
   
-  dir='/home/karpatne/Documents/Lake Temperature Modelling/Datasets/';
-  #dir='C:\\Users\\arkad\\Documents\\Lake Temperature Modelling\\Datasets\\'  
+  dir='../Datasets/';
   if use_temporal_feature==1:
       filename = 'temporal_mendota_train_test_split_4_year_train_new.mat';
   else:
@@ -203,18 +181,14 @@ def createModel(
         lamda_reg, 
         n_nodes):
   
-  #regularizers.l1_l2(l1=lamda_reg,l2=lamda_reg)
+
   main_input=Input(shape=(input_shape1, input_shape2), name='main_input')
-  #dense1=Dense(feedforward_nodes,use_bias=1, kernel_regularizer=regularizers.l1_l2(l1=lamda_reg,l2=lamda_reg))(main_input)
-  #activ_dense1=keras.layers.ELU(alpha=1.0)(dense1)
-  #dropout1=Dropout(drop_frac)(activ_dense1)
   mlstm_out=mLSTM(input_units=lstm_nodes, hidden_units = feedforward_nodes, output_units=1, return_sequences=True, 
                       use_bias=lstm_bias, dropout=drop_frac, recurrent_dropout = drop_frac, hidden_dropout = drop_frac, name='aux_output')(main_input)
   x=concatenate([mlstm_out,main_input])
   dense3=TimeDistributed(Dense(n_nodes,use_bias=1,
                kernel_regularizer=regularizers.l2(lamda_reg)))(x)
   activ_dense3=keras.layers.ELU(alpha=1.0)(dense3)
-  #dropout3=Dropout(drop_frac)(activ_dense3)
   main_output=Dense(1, activation='linear',name='main_output')(activ_dense3)
   
   model=Model(inputs=[main_input], outputs=[main_output,mlstm_out])
@@ -284,92 +258,11 @@ def physical_inconsistency_all_sample(tol, test_pred_do, depth_steps):
   test_incon_uq=np.sum(test_count_uq)/density_test_pred_do.shape[0];
   return test_incon_uq;
 
-# %% P value computation
-def compute_p_values(test_pred_do, test_y1):
-    test_pred_do=np.swapaxes(test_pred_do,0,2);
-    p_values=np.zeros((test_pred_do.shape[1],test_pred_do.shape[2]));
-    sample_mean=np.mean(test_pred_do,axis=0);
-    print(test_pred_do.shape)
-    print(test_y1.shape)
-    for i in range(test_pred_do.shape[1]):
-        for j in range(test_pred_do.shape[2]):
-            diff=np.absolute(sample_mean[i,j]-test_y1[i,j,0])
-            count=0;
-            for k in range(test_pred_do.shape[0]):
-                if test_pred_do[k,i,j]>(sample_mean[i,j]+diff) or test_pred_do[k,i,j]<(sample_mean[i,j]-diff):
-                    count=count+1;
-            p_values[i,j]=count/test_pred_do.shape[0];
-    return p_values;
 
-# %% plot function p-value vs residuals
-def plot_p_value_vs_residuals(test_p_values, test_pred_do, test_y1):
-    test_pred_do=np.swapaxes(test_pred_do,0,2);
-    sample_mean=np.mean(test_pred_do,axis=0);
-    print('sample mean shape',sample_mean.shape)
-    mask=test_y1[:,:,1].reshape((-1,));
-    ix=np.where(mask==1);
-    residuals=np.absolute(sample_mean-test_y1[:,:,0]).reshape((-1,));
-    all_p_values=test_p_values;
-    test_p_values=test_p_values.reshape((-1,));
-    #pyplot.scatter(residuals[ix],test_p_values[ix]);
-    
-    #figure 1
-    pyplot.figure();
-    pyplot.hist2d(residuals[ix],test_p_values[ix],bins=[20,100], norm=LogNorm());
-    pyplot.xlabel('residuals');
-    pyplot.ylabel('p-values');
-    pyplot.colorbar();
-    pyplot.show();
-    
-    #figure 2
-    n_bins=20;
-    pyplot.figure();
-    pyplot.hist(test_p_values[ix],bins=n_bins);
-    pyplot.xlabel('p-values');
-    pyplot.show();
-    
-    #figure 3
-    pyplot.figure();
-    pyplot.hist(residuals[ix],bins=50);
-    pyplot.xlabel('Residuals');
-    pyplot.show();
-    p_value=np.mean(test_p_values[ix])
-    print("Mean P-value = "+str(p_value));
-    return [p_value, all_p_values];
- 
-# %% Quinn's Percent vs Percentile plot    
-def plot_percent_percentile_plot(test_pred_do, test_y1):
-    test_pred_do=np.swapaxes(test_pred_do,0,1);
-    percentile=np.zeros((test_pred_do.shape[0],test_pred_do.shape[1]))
-    z_score=np.zeros_like(percentile)
-    for i in range(test_pred_do.shape[0]):
-        for j in range(test_pred_do.shape[1]):
-            if test_y1[i,j,1]==0:
-                percentile[i,j]=np.nan;
-                z_score[i,j]=np.nan;
-                continue;
-            temp=np.append(test_pred_do[i,j,:], test_y1[i,j,0]);
-            temp=np.sort(temp);
-            ix=np.where(temp==test_y1[i,j,0]);
-            percentile[i,j]=ix[0][0]/(len(temp)-1)*100;
-            z_score[i,j]=(test_y1[i,j,0]-np.mean(test_pred_do[i,j,:])) / np.std(test_pred_do[i,j,:]);
-    
-    mask=test_y1[:,:,1].reshape((-1,));
-    ix=np.where(mask==1);
-    percentile=percentile.reshape((-1,))[ix];        
-    #pyplot.figure();
-    #pyplot.hist(percentile,bins=100);
-    res = stats.cumfreq(percentile, numbins=100)
-    x = res.lowerlimit + np.linspace(0, res.binsize*res.cumcount.size, res.cumcount.size)
-    pyplot.figure()
-    pyplot.bar(x, res.cumcount/np.count_nonzero(mask)*100, width=res.binsize)
-    pyplot.plot(x, x, '-r', label='y=x')
-    pyplot.show()
-    return z_score;
 
 # %% Start of PGA model function
 #Start of function
-def PGA_Rec_LSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
+def PGA_mLSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
                             n_nodes, use_GLM, use_temporal_feature, lamda_reg, shuffle, lamda_main, lamda_aux, tol, pad_steps):
     
     
@@ -404,8 +297,7 @@ def PGA_Rec_LSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epoc
             '_use_temporal_features'+str(use_temporal_feature) + '_lamda_reg'+str(lamda_reg)+'_pad_steps'+str(pad_steps)+'_layers_in_rec_lstm'+str(layers_in_rec_lstm)
     exp_name = exp_name.replace('.', 'pt')
     
-    results_dir = '/home/karpatne/Documents/Lake Temperature Modelling/Results/SDM_results/PGA_rectifier_LSTM_l2/'
-    #results_dir='C:\\Users\\arkad\\Documents\\Lake Temperature Modelling\\Results\\test\\'
+    results_dir = '../Results/Mendota_PGA_mLSTM/'
     model_name = results_dir + exp_name + '_model.h5'  # storing the trained model
     results_name = results_dir + exp_name + '_results.mat'  # storing the results of the model
     
@@ -524,13 +416,6 @@ def PGA_Rec_LSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epoc
     
     print("With dropout Inconsistency of all samples: Test Incon = "+str(test_inconsistency_dropout_all)+'  Train Incon = '+str(train_inconsistency_dropout_all))
     
-    test_p_values=compute_p_values(test_pred_do, test_y1);
-    train_p_values=compute_p_values(train_pred_do, train_y1);
-    print('Train p-values : '+str(np.nanmean(train_p_values)));
-    print('Test p-values : '+str(np.nanmean(test_p_values)));
-    [mean_p_value, p_values] = plot_p_value_vs_residuals(test_p_values, test_pred_do, test_y1);
-    
-    z_score = plot_percent_percentile_plot(test_pred_do, test_y1);
     
     #model.save(model_name)
     
@@ -555,39 +440,28 @@ def PGA_Rec_LSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epoc
                                'train_aux_output_loss':history.history['aux_output_loss'],
                                'train_loss':history.history['loss'], 
                                'train_val_loss':history.history['val_loss'],
-                               'z_scores':z_score,
-                               'mean_p_value':mean_p_value,
-                               'p_values' : p_values})
+                               })
     
     
 # %% Main Function
 if __name__ == '__main__':
     #set Parameters of model here    
-    #tr_frac_range=[5,10,25,50,100];
     tr_frac_range=[10,20,30,40,50,100];
     layers_in_rec_lstm=2;
-    
-    #tr_frac=50
     
     val_frac = 0.1;
     patience_val = 1000;
     num_epochs = 5000;
     batch_size = 20;
-    #lstm_nodes_range = [4,8,16,25];
     lstm_nodes=8;
-    #feedforward_nodes_range = [3,5,7,10];
     feedforward_nodes=5;
     mask_value = 0;
     drop_frac = 0.2;
-    #drop_frac_range=[0.2,0.3,0.5];
     lstm_bias = 1;
-    #n_nodes_range=[5,10];
     n_nodes = 5;
     use_GLM = 1;
     use_temporal_feature = 1;
-    #iter_range=np.arange(1);
     lamda_reg = 0.05;
-    #lamda_reg=0;
     iteration = 1;
     shuffle = 1;
     lamda_main = 0.2;
@@ -597,5 +471,5 @@ if __name__ == '__main__':
     iter=10;
     for iteration in np.arange(iter):
         for tr_frac in tr_frac_range:
-            PGA_Rec_LSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
+            PGA_mLSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
                             n_nodes, use_GLM, use_temporal_feature, lamda_reg, shuffle, lamda_main, lamda_aux, tol, pad_steps)
