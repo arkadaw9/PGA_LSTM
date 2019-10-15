@@ -115,7 +115,7 @@ test_year=[test_dates[i].year for i in range(test_X.shape[0])];
 test_month=[test_dates[i].month for i in range(test_X.shape[0])];
 test_day=[test_dates[i].day for i in range(test_X.shape[0])];
 
-spio.savemat('ROA_temporal_mendota_train_test_split_4_year_train_new.mat',{'train_X':train_X,'train_Y_true':train_Y,'test_X':test_X,'test_Y_true':test_Y,
+spio.savemat('../Datasets/ROA_temporal_mendota_train_test_split_4_year_train_new.mat',{'train_X':train_X,'train_Y_true':train_Y,'test_X':test_X,'test_Y_true':test_Y,
                'train_year':train_year,'train_month':train_month,'train_day':train_day,'test_year':test_year,'test_month':test_month,'test_day':test_day});
 
 
