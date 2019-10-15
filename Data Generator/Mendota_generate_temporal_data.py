@@ -14,7 +14,7 @@ Script Description:
 This script loads the datasets along with the temporal features extracted by the autoencoder and performs data
 preprocessing as described in the Appendix. This script generates a datasets which is going to be used by the PGA-LSTM 
 and other baselines. 
-Note: ROA refers to the Falling Creek Reservoir (FCR) in Roanoke, Virginia.
+This file is for Lake Mendota.
 """
 
 
