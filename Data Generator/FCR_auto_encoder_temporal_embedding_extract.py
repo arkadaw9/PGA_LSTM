@@ -87,8 +87,7 @@ history=autoencoder.fit(train_X,train_Y, epochs=5000, batch_size=256);
 #generating the encoder and decoder outputs.
 encoded_out=encoder.predict(train_X);
 decoder_out=decoder.predict(encoded_out);
-#decoder_out=(decoder_out+mean)*std;
-#train_Y=(train_Y+mean)*std;
+
 err=np.mean(np.square(train_Y-decoder_out));
 embedding_features=encoded_out;
 
