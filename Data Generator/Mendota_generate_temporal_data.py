@@ -148,6 +148,6 @@ test_X = np.asarray(test_X_temp);
 test_Y_glm = np.asarray(test_y_glm_temp);
 
 
-spio.savemat('temporal_mendota_train_test_split_4_year_train_new.mat',{'train_X':train_X,'train_Y_glm':train_Y_glm,'train_Y_true':train_Y_true,'test_X':test_X,'test_Y_glm':test_Y_glm,'test_Y_true':test_Y_true});
+spio.savemat('../Datasets/temporal_mendota_train_test_split_4_year_train_new.mat',{'train_X':train_X,'train_Y_glm':train_Y_glm,'train_Y_true':train_Y_true,'test_X':test_X,'test_Y_glm':test_Y_glm,'test_Y_true':test_Y_true});
 
            
