@@ -457,7 +457,7 @@ def PGA_mLSTM_train_test(iteration,
                                'train_main_loss':history.history['main_output_loss'],
                                'train_aux_output_loss':history.history['aux_output_loss'],
                                'train_loss':history.history['loss'], 
-                               'train_val_loss':history.history['val_loss'],
+                               'train_val_loss':history.history['val_loss']
                                })
     
     
