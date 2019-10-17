@@ -17,7 +17,7 @@ Lake Mendota : Read, J.S., Jia, X., Willard, J., Appling, A.P., Zwart, J.A., Oli
 
 Falling Creek Reservoir (FCR) : Carey C. C., R. P. McClure, A. B. Gerling, J. P. Doubek, S. Chen, M. E. Lofton, K. D. Hamre. 2019. Time series of high-frequency profiles of depth, temperature, dissolved oxygen, conductivity, specific conductivity, chlorophyll a, turbidity, pH, oxidation-reduction potential, photosynthetic active radiation, and descent rate for Beaverdam Reservoir, Carvins Cove Reservoir, Falling Creek Reservoir, Gatewood Reservoir, and Spring Hollow Reservoir in Southwestern Virginia, USA 2013-2018. Environmental Data Initiative, https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265.
 
-If your using these datasets in your paper, please cite the above references.
+If you're using these datasets in your paper, please cite the above references.
 
 ## Using the code
 
