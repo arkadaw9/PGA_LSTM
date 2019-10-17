@@ -11,6 +11,10 @@ The implementation of the monotonicity preserving LSTM was heavily borrowed from
 This paper presents innovations in an emerging field of theory-guided data science where, instead of using black-box architectures, we principally embed well-known physical principles in the neural network design. We refer to this paradigm as physics-guided architecture (PGA) of neural networks. Specifically, this paper offers two key innovations in the PGA paradigm for the illustrative problem of lake temperature modeling.  First, we introduce novel *physics-informed connections* among neurons in the network to capture physics-based relationships of lake temperature. Second, we associate physical meaning to some of the neurons in the network by computing physical intermediate variables $Z$ in the neural pathway from inputs to outputs. By hard-wiring physics in the model architecture, the PGA paradigm ensures physical consistency of results regardless of small perturbations in the network weights, e.g, due to MC dropout.
 
 For more information, please check out the paper.
+## Datasets
+Lake Mendota : Read, J.S., Jia, X., Willard, J., Appling, A.P., Zwart, J.A., Oliver, S.K., Karpatne, A., Hansen, G.J.A., Hanson, P.C., Watkins, W., Steinbach, M., Kumar, V. 2019, Data release: Process-guided deep learning predictions of lake water temperature: U.S. Geological Survey, [http://dx.doi.org/10.5066/P9AQPIVD] (http://dx.doi.org/10.5066/P9AQPIVD).
+
+Falling Creek Reservoir (FCR) : Carey C. C., R. P. McClure, A. B. Gerling, J. P. Doubek, S. Chen, M. E. Lofton, K. D. Hamre. 2019. Time series of high-frequency profiles of depth, temperature, dissolved oxygen, conductivity, specific conductivity, chlorophyll a, turbidity, pH, oxidation-reduction potential, photosynthetic active radiation, and descent rate for Beaverdam Reservoir, Carvins Cove Reservoir, Falling Creek Reservoir, Gatewood Reservoir, and Spring Hollow Reservoir in Southwestern Virginia, USA 2013-2018. Environmental Data Initiative. [https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265] (https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265)
 
 ## Using the code
 
