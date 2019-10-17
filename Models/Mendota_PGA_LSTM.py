@@ -465,7 +465,7 @@ def PGA_mLSTM_train_test(iteration,
 if __name__ == '__main__':
     #set Parameters of model here    
     tr_frac_range = [10,20,30,40,50,100];
-    tr_frac = tr_frac_range[-1];
+    tr_frac = tr_frac_range[3]; # 40% training fraction used
     layers_in_rec_lstm = 2;
     val_frac = 0.1;
     patience_val = 1000;
