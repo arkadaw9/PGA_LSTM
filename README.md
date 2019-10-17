@@ -1,4 +1,4 @@
-# Physics Guided Architecture(PGA) of Neural Networks for Quantifying Uncertainty in Lake Temperature Modelling
+# Physics Guided Architecture (PGA) of Neural Networks for Quantifying Uncertainty in Lake Temperature Modelling
 
 This repository provides code for the Physics Guided Architecture (PGA) - LSTM. 
 
