@@ -465,8 +465,8 @@ def PGA_mLSTM_train_test(iteration,
 if __name__ == '__main__':
     #set Parameters of model here    
     tr_frac_range = [10,20,30,40,50,100];
+    tr_frac = tr_frac_range[-1];
     layers_in_rec_lstm = 2;
-    
     val_frac = 0.1;
     patience_val = 1000;
     num_epochs = 5000;
@@ -486,8 +486,6 @@ if __name__ == '__main__':
     lamda_aux = 1;
     tol=0.00001;
     pad_steps = 10;
-    iter=10;
-    for iteration in np.arange(iter):
-        for tr_frac in tr_frac_range:
-            PGA_mLSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
+    iteration = 1;
+    PGA_mLSTM_train_test(iteration, tr_frac, val_frac, patience_val, num_epochs, batch_size, lstm_nodes, feedforward_nodes, mask_value, drop_frac, lstm_bias, 
                             n_nodes, use_GLM, use_temporal_feature, lamda_reg, shuffle, lamda_main, lamda_aux, tol, pad_steps)
