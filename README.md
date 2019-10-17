@@ -34,7 +34,7 @@ This script for the implementation of the monotonicity preserving LSTM can be fo
 
 Run the script 'Models/[lake]\_PGA_LSTM.py' to train and test the PGA-LSTM model for either lakes.
 
-The script has the following tunable hyper-parameters which you can play with :
+The script has the following tunable hyper-parameters in the '__main__' function which you can play with :
 
 1.  tr_frac_range : list containing the values of the training fractions for which you want to generate results.
 2. val_frac : Float between 0 and 1. Validation fraction. 
