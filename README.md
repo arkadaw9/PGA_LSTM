@@ -12,9 +12,12 @@ This paper presents innovations in an emerging field of theory-guided data scien
 
 For more information, please check out the paper.
 ## Datasets
-Lake Mendota : Read, J.S., Jia, X., Willard, J., Appling, A.P., Zwart, J.A., Oliver, S.K., Karpatne, A., Hansen, G.J.A., Hanson, P.C., Watkins, W., Steinbach, M., Kumar, V. 2019, Data release: Process-guided deep learning predictions of lake water temperature: U.S. Geological Survey, [http://dx.doi.org/10.5066/P9AQPIVD] (http://dx.doi.org/10.5066/P9AQPIVD).
 
-Falling Creek Reservoir (FCR) : Carey C. C., R. P. McClure, A. B. Gerling, J. P. Doubek, S. Chen, M. E. Lofton, K. D. Hamre. 2019. Time series of high-frequency profiles of depth, temperature, dissolved oxygen, conductivity, specific conductivity, chlorophyll a, turbidity, pH, oxidation-reduction potential, photosynthetic active radiation, and descent rate for Beaverdam Reservoir, Carvins Cove Reservoir, Falling Creek Reservoir, Gatewood Reservoir, and Spring Hollow Reservoir in Southwestern Virginia, USA 2013-2018. Environmental Data Initiative. [https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265] (https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265)
+Lake Mendota : Read, J.S., Jia, X., Willard, J., Appling, A.P., Zwart, J.A., Oliver, S.K., Karpatne, A., Hansen, G.J.A., Hanson, P.C., Watkins, W., Steinbach, M., Kumar, V. 2019, Data release: Process-guided deep learning predictions of lake water temperature: U.S. Geological Survey, http://dx.doi.org/10.5066/P9AQPIVD.
+
+Falling Creek Reservoir (FCR) : Carey C. C., R. P. McClure, A. B. Gerling, J. P. Doubek, S. Chen, M. E. Lofton, K. D. Hamre. 2019. Time series of high-frequency profiles of depth, temperature, dissolved oxygen, conductivity, specific conductivity, chlorophyll a, turbidity, pH, oxidation-reduction potential, photosynthetic active radiation, and descent rate for Beaverdam Reservoir, Carvins Cove Reservoir, Falling Creek Reservoir, Gatewood Reservoir, and Spring Hollow Reservoir in Southwestern Virginia, USA 2013-2018. Environmental Data Initiative, https://doi.org/10.6073/pasta/8f19c5d19d816857e55077ba20570265.
+
+If your using these datasets in your paper, please cite the above references.
 
 ## Using the code
 
